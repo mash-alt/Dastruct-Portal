@@ -6,6 +6,7 @@ import {
   studentLogin,
   teacherSignup,
   teacherLogin,
+  logout,
   getMe,
 } from '../controller/auth.controller.js';
 import { authenticate, requireAdmin, requireTeacher, requireStudent } from '../middleware/auth.js';
@@ -26,6 +27,9 @@ router.post('/auth/teacher/login', teacherLogin);
 // Protected User Routes
 // ======================
 router.get('/auth/me', authenticate, getMe);
+
+// Logout Route
+router.post('/auth/logout', authenticate, logout);
 
 // ======================
 // Admin-Only Routes

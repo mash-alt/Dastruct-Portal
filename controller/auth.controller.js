@@ -90,3 +90,13 @@ export const getMe = (req, res) => {
   const { password, ...userWithoutPassword } = req.user.toObject();
   res.json(userWithoutPassword);
 };
+
+// Logout function
+export const logout = (req, res) => {
+  try {
+    // Invalidate the token on the client side (e.g., remove it from localStorage or cookies)
+    res.status(200).json({ message: 'Logged out successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred during logout.' });
+  }
+};
