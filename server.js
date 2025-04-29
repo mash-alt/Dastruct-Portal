@@ -1,10 +1,10 @@
+import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
-import authRouter from "./router/auth.router.js";
-import adminRouter from "./router/admin.router.js";
-import teacherRouter from "./router/teacher.router.js";
 import errorLogger from "./middleware/errorLogger.js";
-import cors from "cors";
+import adminRouter from "./router/admin.router.js";
+import authRouter from "./router/auth.router.js";
+import teacherRouter from "./router/teacher.router.js";
 
 const app = express();
 const port = process.env.PORT || 5050;
@@ -21,7 +21,7 @@ mongoose.connect(conn_string, {
     useUnifiedTopology: true
 })
 .then(() => console.log("Connected to MongoDB"))
-.catch(err => console.log(e));
+.catch(err => console.log(err));
 
 app.use("/api", authRouter);
 app.use("/api", adminRouter);
