@@ -1,5 +1,6 @@
 import subjectSchema from '../schema/subject.js';
 import Teacher from '../schema/teacher.js'; // Import the Teacher model
+import Student from '../schema/student.js'; // Import the Student model
 
 const Subject = subjectSchema;
 
@@ -106,6 +107,99 @@ export const getAllSubjects = async (req, res) => {
   }
 };
 
+// Get all teachers
+export const getAllTeachers = async (req, res) => {
+  try {
+    const teachers = await Teacher.find();
+    res.status(200).json({ message: 'Teachers retrieved successfully.', teachers });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all students
+export const getAllStudents = async (req, res) => {
+  try {
+    const students = await Student.find();
+    res.status(200).json({ message: 'Students retrieved successfully.', students });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Assign a subject to a teacher using edpCode and teacher name
+export const assignSubjectToTeacher = async (req, res) => {
+  try {
+    const { edpCode, teacherName } = req.body;
+
+    if (!edpCode || !teacherName) {
+      return res.status(400).json({ error: 'edpCode and teacherName are required.' });
+    }
+
+    const subject = await Subject.findOne({ edpCode });
+    if (!subject) {
+      return res.status(404).json({ error: 'Subject not found.' });
+    }
+
+    const teacher = await Teacher.findOne({ name: teacherName });
+    if (!teacher) {
+      return res.status(404).json({ error: 'Teacher not found.' });
+    }
+
+    // Assign the teacher to the subject
+    subject.teacherAssigned = teacher._id;
+    await subject.save();
+
+    // Add the subject to the teacher's assignedSubjects if not already present
+    if (!teacher.assignedSubjects.includes(subject._id)) {
+      teacher.assignedSubjects.push(subject._id);
+      await teacher.save();
+    }
+
+    res.status(200).json({ message: 'Subject assigned to teacher successfully.', subject, teacher });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Assign multiple subjects to a teacher using edpCodes and teacher name
+export const assignSubjectsToTeacher = async (req, res) => {
+  try {
+    const { edpCodes, teacherName } = req.body;
+
+    if (!Array.isArray(edpCodes) || !teacherName) {
+      return res.status(400).json({ error: 'edpCodes (array) and teacherName are required.' });
+    }
+
+    const teacher = await Teacher.findOne({ name: teacherName });
+    if (!teacher) {
+      return res.status(404).json({ error: 'Teacher not found.' });
+    }
+
+    const updatedSubjects = [];
+
+    for (const edpCode of edpCodes) {
+      const subject = await Subject.findOne({ edpCode });
+      if (!subject) {
+        return res.status(404).json({ error: `Subject with edpCode ${edpCode} not found.` });
+      }
+      subject.teacherAssigned = teacher._id;
+      await subject.save();
+
+      if (!teacher.assignedSubjects.includes(subject._id)) {
+        teacher.assignedSubjects.push(subject._id);
+      }
+      updatedSubjects.push(subject);
+    }
+
+    await teacher.save();
+
+    res.status(200).json({ message: 'Subjects assigned to teacher successfully.', teacher, subjects: updatedSubjects });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Sample Postman request body for adding a subject
 // {
 //   "subjectName": "Mathematics 101",
@@ -128,5 +222,24 @@ export const getAllSubjects = async (req, res) => {
 // {
 //   "page": 1, // Optional, for pagination
 //   "limit": 10 // Optional, for pagination
+// }
+// Sample Postman request body for getting all teachers
+// {
+//   // No request body needed, just send a GET request to /admin/teachers  
+// }
+
+// Sample Postman request body for getting all students
+// {
+//   // No request body needed, just send a GET request to /admin/students
+// }
+// Sample Postman request body for assigning a subject to a teacher
+// {
+//   "subjectId": "subject_id_here", // The ID of the subject to assign
+//   "teacherId": "teacher_id_here" // The ID of the teacher to assign the subject to
+// }
+// Sample Postman request body for assigning multiple subjects to a teacher
+// {
+//   "subjectIds": ["subject_id_1", "subject_id_2"], // Array of subject IDs to assign
+//   "teacherId": "teacher_id_here" // The ID of the teacher to assign the subjects to
 // }
 
