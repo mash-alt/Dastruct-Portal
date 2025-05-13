@@ -4,7 +4,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node --watch --env-file=.env server.js",
-    "test": "mocha"
+    "test": "mocha",
+    "populate-students": "node --env-file=.env test/populate-students.js",
+    "populate-subjects": "node --env-file=.env test/populate-subjects.js",
+    "populate-teachers": "node --env-file=.env test/populate-teachers.js"
   },
   "keywords": [],
   "type": "module",
@@ -12,6 +15,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/genai": "^0.13.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",

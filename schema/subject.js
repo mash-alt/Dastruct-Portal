@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import { programs } from "../constants/PROGRAMS.js";
+
+// Extract program codes for enum validation
+const programCodes = programs.map(program => program.code);
 
 const subjectSchema = new mongoose.Schema({
   edpCode: String,
@@ -19,7 +23,19 @@ const subjectSchema = new mongoose.Schema({
       midtermGrade: Number,
       finalGrade: Number
     }
-  }
+  },
+  semester: {
+    type: String,
+    enum: ['First', 'Second', 'Summer']
+  },
+  yearLevel: {
+    type: Number,
+    enum: [1, 2, 3, 4] 
+  },
+  department: {
+    type: String,
+    enum: programCodes
+  },
 }, { timestamps: true });
 
 export default mongoose.model('Subject', subjectSchema);

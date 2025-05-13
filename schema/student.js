@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import { programs } from "../constants/PROGRAMS.js";
+
+const programCodes = programs.map(program => program.code);
 
 // models/Student.js
 const studentSchema = new mongoose.Schema({
@@ -9,11 +12,38 @@ const studentSchema = new mongoose.Schema({
   bday: Date,
   idNumber: String,
   course: String,
-  address: String,
-  phoneNumber: String, // Added phone number field
+  yearLevel: Number,
+  section: String,  address: String,
+  phoneNumber: String,
+  isEnrolled: {
+    type: Boolean,
+    default: false
+  },  department: {
+    type: String,
+    enum: programCodes
+  }, // Added phone number field
   enrolledSubjects: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Subject'
+  }],
+  academicHistory: [{
+    academicYear: String,
+    semester: {
+      type: String,
+      enum: ['First', 'Second', 'Summer']
+    },
+    subjects: [{
+      subject: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subject'
+      },
+      edpCode: String,
+      subjectName: String,
+      units: Number,
+      midtermGrade: Number,
+      finalGrade: Number,
+      remarks: String
+    }]
   }]
 }, 
 { timestamps: true });

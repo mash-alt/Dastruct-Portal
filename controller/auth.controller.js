@@ -38,9 +38,8 @@ const authHandler = (Model, generateExtraFields = () => ({})) => {
           name,
           email,
           password: await hashPassword(password),
-          ...generateExtraFields(),
-          ...(Model === Student && { 
-            studentId: `ucb-${Date.now()}`, 
+          ...generateExtraFields(),          ...(Model === Student && { 
+            studentId: `ucb-${Math.floor(10000000 + Math.random() * 90000000)}`, // 8-digit number
             phoneNumber, 
             course, 
             bday, 
@@ -58,15 +57,48 @@ const authHandler = (Model, generateExtraFields = () => ({})) => {
       } catch (error) {
         res.status(400).json({ error: error.message });
       }
-    },
-
-    login: async (req, res) => {
+    },    login: async (req, res) => {
       try {
-        const { email, password } = req.body;
-        const user = await Model.findOne({ email });
+        const { email, password, studentId, username } = req.body;
         
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-          return res.status(401).json({ error: 'Invalid credentials' });
+        // For students, allow login by studentId or email
+        let user;
+        let loginIdentifier = email || username || studentId; // Support for various field names
+        
+        if (!loginIdentifier) {
+          return res.status(400).json({ error: 'Please provide email, username, or studentId' });
+        }
+        
+        if (!password) {
+          return res.status(400).json({ error: 'Please provide a password' });
+        }
+        
+        // Determine what kind of identifier was used (for better error messages)
+        let identifierType = "credentials";
+        if (email) identifierType = "email";
+        else if (studentId) identifierType = "student ID";
+        else if (username) identifierType = "username";
+        
+        if (Model === Student) {
+          // Try to find by studentId first, then by email if no user found
+          user = await Model.findOne({ 
+            $or: [
+              { studentId: loginIdentifier },
+              { email: loginIdentifier }
+            ] 
+          });
+        } else {
+          // For non-student users (admin, teacher), search by email only
+          user = await Model.findOne({ email: loginIdentifier });
+        }
+        
+        // Separate error messages for user not found vs password mismatch
+        if (!user) {
+          return res.status(401).json({ error: `Invalid ${identifierType}` });
+        }
+        
+        if (!(await bcrypt.compare(password, user.password))) {
+          return res.status(401).json({ error: 'Invalid password' });
         }
 
         const token = generateToken(user);

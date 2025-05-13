@@ -1,0 +1,417 @@
+{
+  "curriculum": {
+    "firstYear": {
+      "firstSem": {
+        "totalUnits": 26,
+        "subjects": [
+          {
+            "subjectCode": "eng100",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "socio102",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "math100",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "psych101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "cc-intcom11",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "cc-comprog11",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "it-webdev11",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "pe101",
+            "units": 2,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "nstp101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          }
+        ]
+      },
+      "secondSem": {
+        "totalUnits": 26,
+        "subjects": [
+          {
+            "subjectCode": "eng101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false,
+            "prerequisites": ["eng100"]
+          },
+          {
+            "subjectCode": "entrep101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "math101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false,
+            "prerequisites": ["math100"]
+          },
+          {
+            "subjectCode": "hist101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "hum101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "cc-comprog12",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-comprog11"]
+          },
+          {
+            "subjectCode": "cc-discret12",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-intcom11"]
+          },
+          {
+            "subjectCode": "pe102",
+            "units": 2,
+            "isElective": false,
+            "isMajor": false,
+            "prerequisites": ["pe101"]
+          },
+          {
+            "subjectCode": "nstp102",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false,
+            "prerequisites": ["nstp101"]
+          }
+        ]
+      }
+    },
+    "secondYear": {
+      "firstSem": {
+        "totalUnits": 23,
+        "subjects": [
+          {
+            "subjectCode": "socio101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "rizal101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "cc-digilog21",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-discret12"]
+          },
+          {
+            "subjectCode": "cc-ooprog21",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-comprog12"]
+          },
+          {
+            "subjectCode": "it-sad21",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-comprog12"]
+          },
+          {
+            "subjectCode": "cc-acctg21",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["math101"]
+          },
+          {
+            "subjectCode": "cc-twrite21",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["eng101", "cc-intcom11"]
+          },
+          {
+            "subjectCode": "pe103",
+            "units": 2,
+            "isElective": false,
+            "isMajor": false,
+            "prerequisites": ["pe102"]
+          }
+        ]
+      },
+      "secondSem": {
+        "totalUnits": 23,
+        "subjects": [
+          {
+            "subjectCode": "sts101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "philo101",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "cc-quameth22",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-discret12"]
+          },
+          {
+            "subjectCode": "it-platech22",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-digilog21"]
+          },
+          {
+            "subjectCode": "cc-appsdev22",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-ooprog21", "it-sad21"]
+          },
+          {
+            "subjectCode": "cc-datastruc22",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-ooprog21"]
+          },
+          {
+            "subjectCode": "cc-datacom22",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-digilog21"]
+          },
+          {
+            "subjectCode": "pe104",
+            "units": 2,
+            "isElective": false,
+            "isMajor": false,
+            "prerequisites": ["pe103"]
+          }
+        ]
+      }
+    },
+    "thirdYear": {
+      "firstSem": {
+        "totalUnits": 21,
+        "subjects": [
+          {
+            "subjectCode": "it-imdbsys31",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-appsdev22"]
+          },
+          {
+            "subjectCode": "it-network31",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-datacom22"]
+          },
+          {
+            "subjectCode": "it-testqua31",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-appsdev22"]
+          },
+          {
+            "subjectCode": "cc-hci31",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-appsdev22"]
+          },
+          {
+            "subjectCode": "cc-rescom31",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-twrite21", "cc-quameth22"]
+          },
+          {
+            "subjectCode": "it-el1",
+            "units": 3,
+            "isElective": true,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "it-fre1",
+            "units": 3,
+            "isElective": true,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "it-fre2",
+            "units": 3,
+            "isElective": true,
+            "isMajor": true
+          }
+        ]
+      },
+      "secondSem": {
+        "totalUnits": 21,
+        "subjects": [
+          {
+            "subjectCode": "it-imdbsys32",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["it-imdbsys31"]
+          },
+          {
+            "subjectCode": "it-infosec32",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["it-imdbsys31", "it-network31"]
+          },
+          {
+            "subjectCode": "it-sysarch32",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["it-testqua31", "cc-hci31"]
+          },
+          {
+            "subjectCode": "cc-techno32",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["cc-rescom31"]
+          },
+          {
+            "subjectCode": "it-intprog32",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["it-imdbsys31"]
+          },
+          {
+            "subjectCode": "it-sysadmin32",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true,
+            "prerequisites": ["it-network31"]
+          },
+          {
+            "subjectCode": "it-el2",
+            "units": 3,
+            "isElective": true,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "it-fre3",
+            "units": 3,
+            "isElective": true,
+            "isMajor": true
+          }
+        ]
+      }
+    },
+    "fourthYear": {
+      "firstSem": {
+        "totalUnits": 9,
+        "subjects": [
+          {
+            "subjectCode": "lit11",
+            "units": 3,
+            "isElective": false,
+            "isMajor": false
+          },
+          {
+            "subjectCode": "it-cpstone40",
+            "units": 3,
+            "isElective": false,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "it-el3",
+            "units": 3,
+            "isElective": true,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "it-fre4",
+            "units": 3,
+            "isElective": true,
+            "isMajor": true
+          }
+        ]
+      },
+      "secondSem": {
+        "totalUnits": 12,
+        "subjects": [
+          {
+            "subjectCode": "cc-pract40",
+            "units": 9,
+            "isElective": false,
+            "isMajor": true
+          },
+          {
+            "subjectCode": "it-el4",
+            "units": 3,
+            "isElective": true,
+            "isMajor": true
+          }
+        ]
+      }
+    }
+  }
+}

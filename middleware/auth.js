@@ -41,6 +41,16 @@ export const requireRole = (role) => {
   };
 };
 
+// Middleware to allow multiple roles (any of the specified roles)
+export const requireAny = (roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.role.toLowerCase())) {
+      return res.status(403).json({ error: `Authorized access required. You need to be one of: ${roles.join(', ')}` });
+    }
+    next();
+  };
+};
+
 // Specific role middlewares (using the dynamic version)
 export const requireAdmin = requireRole('Admin');
 export const requireTeacher = requireRole('Teacher');
