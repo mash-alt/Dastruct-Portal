@@ -152,20 +152,37 @@ export const getStudyLoad = async (req, res) => {
         return res.status(400).json({ error: 'studentId is required.' });
       }
   
-      // Find the student by ID and populate the enrolledSubjects field
-      const student = await Student.findById(studentId).populate('enrolledSubjects');
+      let student;
+      
+      // Check if the studentId is a MongoDB ObjectId or a student ID (with ucb- prefix)
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(studentId);
+      
+      if (isObjectId) {
+        // Find by MongoDB _id
+        student = await Student.findById(studentId).populate('enrolledSubjects');
+      } else {
+        // Find by studentId field (e.g., ucb-12345678)
+        student = await Student.findOne({ studentId }).populate('enrolledSubjects');
+      }
+      
       if (!student) {
-        return res.status(404).json({ error: `Student with ID "${studentId}" not found.` });
+        return res.status(404).json({ error: `Student with identifier "${studentId}" not found.` });
       }
   
       res.status(200).json({
         message: 'Study load retrieved successfully.',
+        student: {
+          _id: student._id,
+          name: student.name,
+          studentId: student.studentId,
+          department: student.department,
+          yearLevel: student.yearLevel
+        },
         studyLoad: student.enrolledSubjects, // Array of subject details
       });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-
 };
 
 // Add a single subject or multiple subjects to a student's enrolled subjects (without enrollment status change)
