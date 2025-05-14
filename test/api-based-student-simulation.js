@@ -9,7 +9,6 @@ import { getRecommendedSubjects } from '../service/recommendation.service.js';
 import { maxUnitsPerSemester } from '../constants/PROGRAMS.js';
 import studentRouter from '../router/student.router.js';
 import academicRouter from '../router/academic.router.js';
-import authMiddleware from '../middleware/auth.js';
 
 // Load environment variables
 dotenv.config();

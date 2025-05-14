@@ -28,10 +28,13 @@ describe('Recommendation System Tests', function () {
   
   // Connect to the database before running tests
   before(async function () {
-    await mongoose.connect(process.env.CONN_STRING, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    // Check if we're already connected
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(process.env.CONN_STRING, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+    }
     
     // Cleanup existing test data if any
     await cleanup();
@@ -40,10 +43,10 @@ describe('Recommendation System Tests', function () {
     await setupTestData();
   });
   
-  // Disconnect from the database after tests
+  // Cleanup after tests but don't disconnect
   after(async function () {
     await cleanup();
-    await mongoose.connection.close();
+    // Don't close the connection here as other tests might still be using it
   });
   
   // Test the calculateNextTerm function
@@ -263,18 +266,28 @@ describe('Recommendation System Tests', function () {
   
   // Helper functions for setting up test data
   async function cleanup() {
-    // Delete test subject data 
-    await Subject.deleteMany({
-      $or: [
-        { department: 'BSCS', edpCode: { $regex: /^TEST-/ } },
-        { department: 'BSCS', subjectName: { $regex: /^Test / } }
-      ]
-    });
+    try {
+      // Make sure connection is established
+      if (mongoose.connection.readyState !== 1) {
+        console.log("MongoDB not connected during cleanup, skipping...");
+        return;
+      }
+      
+      // Delete test subject data 
+      await Subject.deleteMany({
+        $or: [
+          { department: 'BSCS', edpCode: { $regex: /^TEST-/ } },
+          { department: 'BSCS', subjectName: { $regex: /^Test / } }
+        ]
+      });
     
-    // Delete test student data
-    await Student.deleteMany({
-      email: { $regex: /^test-recommendation@/ }
-    });
+      // Delete test student data
+      await Student.deleteMany({
+        email: { $regex: /^test-recommendation@/ }
+      });
+    } catch (err) {
+      console.error("Error during cleanup:", err);
+    }
   }
   
   async function setupTestData() {

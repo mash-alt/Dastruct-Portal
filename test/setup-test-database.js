@@ -70,11 +70,10 @@ async function setupTestDatabase() {
     
   } catch (error) {
     console.error("Error setting up test database:", error);
-  } finally {
-    // Close the connection
-    await mongoose.connection.close();
-    console.log("Database connection closed");
   }
+  // Don't close the connection here, let the test runner manage connections
+  // This prevents MongoDB connection pool closing errors when multiple tests run
+  console.log("Database setup completed");
 }
 
 /**
