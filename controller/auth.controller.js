@@ -8,6 +8,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'roch-plando-the-great';
 const SALT_ROUNDS = 10;
 
 // Utility functions
+// Generate a random section (A-F)
+const generateSection = () => {
+  const sections = ['A', 'B', 'C', 'D', 'E', 'F'];
+  return sections[Math.floor(Math.random() * sections.length)];
+};
+
 const generateToken = (user) => {
   return jwt.sign(
     { 
@@ -24,17 +30,14 @@ const hashPassword = async (password) => {
 };
 
 // Main auth logic
-const authHandler = (Model, generateExtraFields = () => ({})) => {
-  return {
+const authHandler = (Model, generateExtraFields = () => ({})) => {  return {
     signup: async (req, res) => {
       try {
-        const { name, email, password, phoneNumber, course, bday, address } = req.body; // Added course, bday, and address
+        const { name, email, password, phoneNumber, course, bday, address, section, department } = req.body; // Added more student fields
         
         if (await Model.findOne({ email })) {
           return res.status(400).json({ error: 'Email already in use' });
-        }
-
-        const user = new Model({
+        }        const user = new Model({
           name,
           email,
           password: await hashPassword(password),
@@ -43,7 +46,8 @@ const authHandler = (Model, generateExtraFields = () => ({})) => {
             phoneNumber, 
             course, 
             bday, 
-            address // Include additional fields for Student
+            address,
+            department: department || course || 'BSIT' // Use explicit department, or course as department, or default to BSIT
           })
         });
 

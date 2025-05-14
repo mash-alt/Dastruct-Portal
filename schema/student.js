@@ -4,17 +4,23 @@ import { programs } from "../constants/PROGRAMS.js";
 const programCodes = programs.map(program => program.code);
 
 // models/Student.js
-const studentSchema = new mongoose.Schema({
-  name: String,
+const studentSchema = new mongoose.Schema({  name: String,
   email: String,
   password: String,
   studentId: String,
   bday: Date,
   idNumber: String,
   course: String,
-  yearLevel: Number,
-  section: String,  address: String,
-  phoneNumber: String,
+  section: String,
+  address: String,
+  phoneNumber: String,  yearLevel: {
+    type: Number,
+    enum: [1, 2, 3, 4] // Assuming a 4-year program
+  }, 
+  semester: {
+    type: String,
+    enum: ['First', 'Second', 'Summer']
+  },
   isEnrolled: {
     type: Boolean,
     default: false

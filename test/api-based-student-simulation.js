@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 // Enhanced student-progression-simulation.js with API integration
 // This script simulates and tests the API endpoints for student progression
 import mongoose from 'mongoose';
@@ -316,4 +314,3 @@ server = app.listen(PORT, async () => {
   console.log(`Test server running on port ${PORT}`);
   await runAPIBasedSimulation();
 });
->>>>>>> c4256c6ae5bb829affc20506b801983daac0aa01

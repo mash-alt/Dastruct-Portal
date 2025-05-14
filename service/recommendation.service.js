@@ -30,16 +30,25 @@ export const calculateNextTerm = (currentSemester, currentYearLevel) => {
 
 /**
  * Gets eligible subjects for a student to take next semester
- * @param {String} studentId - The ID of the student
+ * @param {String} studentId - The ID of the student (can be MongoDB ObjectId or custom student ID)
  * @returns {Promise<Array>} List of recommended subjects
  */
 export const getRecommendedSubjects = async (studentId) => {
   try {
+    // Check if the studentId is a MongoDB ObjectId or a student ID (with ucb- prefix)
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(studentId);
+    
     // Find the student and populate their enrolled subjects and academic history
-    const student = await Student.findById(studentId).populate('enrolledSubjects');
+    let student;
+    if (isObjectId) {
+      student = await Student.findById(studentId).populate('enrolledSubjects');
+    } else {
+      student = await Student.findOne({ studentId }).populate('enrolledSubjects');
+    }
+    
     if (!student) {
-      throw new Error(`Student with ID "${studentId}" not found.`);
-    }    // Get the current semester and year level from the latest academic history entry
+      throw new Error(`Student with identifier "${studentId}" not found.`);
+    }// Get the current semester and year level from the latest academic history entry
     const currentAcademicEntry = student.academicHistory.length > 0 
       ? student.academicHistory.sort((a, b) => {
           // Sort by academic year (descending)
@@ -61,9 +70,11 @@ export const getRecommendedSubjects = async (studentId) => {
     // Get the current semester and year level
     const currentSemester = currentAcademicEntry.semester;
     const currentYearLevel = student.yearLevel || 1;
+      // Instead of calculating the next semester and year level, use the current values
+    const nextSemester = student.semester;
+    const nextYearLevel = student.yearLevel;
     
-    // Calculate the next semester and year level
-    const { nextSemester, nextYearLevel } = calculateNextTerm(currentSemester, currentYearLevel);    // Get all completed subject IDs (from academic history)
+    // Get all completed subject IDs (from academic history)
     const completedSubjectIds = new Set();
     // Track subjects that need to be retaken (failed subjects)
     const failedSubjectIds = new Set();
@@ -165,18 +176,18 @@ export const getRecommendedSubjects = async (studentId) => {
           missingPrerequisites
         };
       })
-    );
-
+    );    const currentAcademicYear = currentAcademicEntry.academicYear;
+    
     return {
       currentInfo: {
-        semester: currentSemester,
-        yearLevel: currentYearLevel,
-        academicYear: currentAcademicEntry.academicYear
+        semester: student.semester,
+        yearLevel: student.yearLevel,
+        academicYear: currentAcademicYear
       },
       nextInfo: {
         semester: nextSemester,
         yearLevel: nextYearLevel,
-        academicYear: calculateNextAcademicYear(currentAcademicEntry.academicYear, currentSemester, nextSemester)
+        academicYear: currentAcademicYear
       },
       eligibleSubjects: eligibleSubjects.filter(item => item.eligible),
       ineligibleSubjects: eligibleSubjects.filter(item => !item.eligible)

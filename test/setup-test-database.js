@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 // setup-test-database.js
 // Script to populate the test database with subjects for testing
 import mongoose from 'mongoose';
@@ -261,4 +259,3 @@ async function createSampleSubjects() {
 
 // Run the setup function
 setupTestDatabase();
->>>>>>> c4256c6ae5bb829affc20506b801983daac0aa01

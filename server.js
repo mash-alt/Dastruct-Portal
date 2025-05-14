@@ -5,6 +5,7 @@ import errorLogger from "./middleware/errorLogger.js";
 import adminRouter from "./router/admin.router.js";
 import authRouter from "./router/auth.router.js";
 import teacherRouter from "./router/teacher.router.js";
+import studentRouter from "./router/student.router.js";
 
 const app = express();
 const port = process.env.PORT || 5050;
@@ -26,6 +27,7 @@ mongoose.connect(conn_string, {
 app.use("/api", authRouter);
 app.use("/api", adminRouter);
 app.use("/api", teacherRouter); 
+app.use("/api", studentRouter);
 
 app.get("/", (req, res) => {
     res.send("Server is running");

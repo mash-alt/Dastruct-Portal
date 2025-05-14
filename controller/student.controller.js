@@ -5,26 +5,38 @@ import { getRecommendedSubjects } from '../service/recommendation.service.js';
 // Enroll a student in subjects for the current academic period
 export const enrollStudent = async (req, res) => {
   try {
-    const { 
+    let { 
       studentId, 
-      subjectIds, 
-      academicYear = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
-      semester = 'First' 
+      subjectIds
     } = req.body;
+    
+    // Use let instead of const since these might be updated later
+    let academicYear = req.body.academicYear || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+    let semester = req.body.semester || 'First';
 
     // Validate input
     if (!studentId) {
       return res.status(400).json({ error: 'studentId is required.' });
     }
 
-    // Find the student by ID
-    const student = await Student.findById(studentId);
-    if (!student) {
-      return res.status(404).json({ error: `Student with ID "${studentId}" not found.` });
-    }    let subjectsToEnroll = [];
+    // Find the student by ID or student ID
+    let student;
+    // Check if the studentId is a MongoDB ObjectId or a student ID (with ucb- prefix)
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(studentId);
+      
+    if (isObjectId) {
+      // Find by MongoDB _id
+      student = await Student.findById(studentId);
+    } else {
+      // Find by studentId field (e.g., ucb-12345678)
+      student = await Student.findOne({ studentId });
+    }
     
-    // If student is not yet enrolled, add default first year subjects
-    // Otherwise, use the provided subject IDs
+    if (!student) {
+      return res.status(404).json({ error: `Student with identifier "${studentId}" not found.` });
+    }let subjectsToEnroll = [];
+      // If student is not yet enrolled, add default first year subjects
+    // Otherwise, check if the student is already enrolled and use recommendations
     if (!student.isEnrolled && (!subjectIds || subjectIds.length === 0)) {
       // Get first year subjects based on student's department/course and the yearLevel field
       const studentDepartment = student.department || 'BSIT';
@@ -38,7 +50,24 @@ export const enrollStudent = async (req, res) => {
         return res.status(404).json({ error: `No first year subjects found for ${studentDepartment} department for ${semester} semester.` });
       }
       
-      subjectsToEnroll = firstYearSubjects.map(subject => subject._id);
+      subjectsToEnroll = firstYearSubjects.map(subject => subject._id);    } else if (student.isEnrolled && (!subjectIds || subjectIds.length === 0)) {
+      // Student is already enrolled, get recommendations for the next semester
+      try {
+        // Use studentId field to avoid ObjectId issues
+        const recommendations = await getRecommendedSubjects(student.studentId);
+        
+        if (!recommendations || !recommendations.eligibleSubjects || recommendations.eligibleSubjects.length === 0) {
+          return res.status(404).json({ error: 'No eligible subjects found for the next semester.' });
+        }        // Use the eligible subjects from recommendations
+        subjectsToEnroll = recommendations.eligibleSubjects.map(item => item.subject._id);
+        
+        // Use the current semester and academic year (not "next")
+        semester = student.semester;
+        academicYear = recommendations.currentInfo.academicYear;
+        
+      } catch (error) {
+        return res.status(500).json({ error: `Error getting recommended subjects: ${error.message}` });
+      }
     } else if (subjectIds && Array.isArray(subjectIds)) {
       // Validate each subject ID and ensure it exists and matches student's department
       const studentDepartment = student.department || 'BSIT';
@@ -96,8 +125,7 @@ export const enrollStudent = async (req, res) => {
         remarks: 'Enrolled'
       }))
     };
-    
-    // Clear previous enrolled subjects (if any) and set the new ones
+      // Clear previous enrolled subjects (if any) and set the new ones
     student.enrolledSubjects = subjectsToEnroll;
     
     // Check if the academic year and semester combination already exists
@@ -113,8 +141,37 @@ export const enrollStudent = async (req, res) => {
       student.academicHistory.push(academicEntry);
     }
     
-    // Update enrollment status
+    // Update the studentsEnrolled array for each subject
+    for (const subjectId of subjectsToEnroll) {
+      await Subject.findByIdAndUpdate(
+        subjectId,
+        { $addToSet: { studentsEnrolled: student._id } },
+        { new: true }
+      );
+    }// Update enrollment status
     student.isEnrolled = true;
+    
+    // If this is the first enrollment, assign initial year level, semester, and section
+    if (!student.yearLevel) {
+      student.yearLevel = 1;
+      student.semester = 'First';
+      // Generate a random section (A-F) if not already assigned
+      if (!student.section) {
+        const sections = ['A', 'B', 'C', 'D', 'E', 'F'];
+        student.section = sections[Math.floor(Math.random() * sections.length)];
+      }
+    } else {
+      // Update student's semester and year level for progression
+      // First -> Second, Second -> First (and year level + 1)
+      if (student.semester === 'First') {
+        student.semester = 'Second';
+      } else if (student.semester === 'Second') {
+        student.semester = 'First';
+        // Increment year level, but don't exceed 4
+        student.yearLevel = Math.min(student.yearLevel + 1, 4);
+      }
+      // Note: If semester was 'Summer', we keep it as is per requirements
+    }
     
     await student.save();
 
@@ -127,6 +184,7 @@ export const enrollStudent = async (req, res) => {
         department: student.department,
         yearLevel: student.yearLevel,
         section: student.section,
+        semester: student.semester,
         isEnrolled: student.isEnrolled
       },
       enrolledSubjects: subjectDetails.map(subject => ({
