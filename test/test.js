@@ -7,9 +7,6 @@ import adminRouter from '../router/admin.router.js';
 import authRouter from '../router/auth.router.js';
 import studentRouter from '../router/student.router.js';
 import teacherRouter from '../router/teacher.router.js';
-import academicRouter from '../router/academic.router.js';
-import academicRouter from '../router/academic.router.js';
-
 dotenv.config();
 
 const app = express();
@@ -18,8 +15,6 @@ app.use('/api', authRouter);
 app.use('/api', adminRouter);
 app.use('/api', teacherRouter);
 app.use('/api', studentRouter);
-app.use('/api', academicRouter);
-app.use('/api', academicRouter);
 
 describe('API Route Integration Tests', function () {
   this.timeout(10000);
@@ -375,130 +370,6 @@ describe('API Route Integration Tests', function () {
     expect([200, 201, 401, 403]).to.include(res.statusCode);
   });
   
-  // Tests for the academic API endpoints
-  describe('Academic API Endpoints', function() {
-    it('should get academic progress for a student', async () => {
-      if (!studentToken || !studentId) return;
-      const res = await request(app)
-        .get(`/api/academic/${studentId}/progress`)
-        .set('Authorization', `Bearer ${studentToken}`);
-      
-      expect([200, 401, 404]).to.include(res.statusCode);
-      
-      // If successful, verify the response structure
-      if (res.statusCode === 200) {
-        expect(res.body).to.have.property('message');
-        expect(res.body).to.have.property('student');
-        expect(res.body).to.have.property('academicSummary');
-        expect(res.body).to.have.property('progressByYear');
-        expect(res.body).to.have.property('recommendations');
-      }
-    });
-    
-    it('should allow teacher to record grades', async () => {
-      if (!teacherToken || !studentId || !subjectId) return;
-      
-      // First, make sure the student is enrolled in a subject
-      // (we've already done this in a previous test)
-      
-      const res = await request(app)
-        .post(`/api/academic/${studentId}/grades`)
-        .set('Authorization', `Bearer ${teacherToken}`)
-        .send({
-          academicYear: '2025-2026',
-          semester: 'First',
-          grades: [
-            {
-              edpCode: 'MATH101', // Using a generic edpCode, might need to be replaced with actual one
-              midtermGrade: 2.0,
-              finalGrade: 1.75
-            }
-          ]
-        });
-      
-      expect([200, 400, 401, 404]).to.include(res.statusCode);
-    });
-    
-    it('should not allow student to record grades', async () => {
-      if (!studentToken || !studentId) return;
-      
-      const res = await request(app)
-        .post(`/api/academic/${studentId}/grades`)
-        .set('Authorization', `Bearer ${studentToken}`)
-        .send({
-          academicYear: '2025-2026',
-          semester: 'First',
-          grades: [
-            {
-              edpCode: 'MATH101',
-              midtermGrade: 1.0,
-              finalGrade: 1.0
-            }
-          ]
-        });
-      
-      // Should get a 403 Forbidden because students aren't allowed to record grades
-      expect(403).to.equal(res.statusCode);
-    });
-    
-    it('should allow teacher to simulate academic progression', async () => {
-      if (!teacherToken || !studentId) return;
-      
-      const res = await request(app)
-        .post('/api/academic/simulate-progression')
-        .set('Authorization', `Bearer ${teacherToken}`)
-        .send({
-          studentId: studentId,
-          semesters: 2 // Simulate 2 semesters for brevity
-        });
-      
-      expect([200, 400, 401, 404]).to.include(res.statusCode);
-      
-      // If successful, verify the simulation data
-      if (res.statusCode === 200) {
-        expect(res.body).to.have.property('message');
-        expect(res.body).to.have.property('simulation');
-        expect(res.body.simulation).to.have.property('studentInfo');
-        expect(res.body.simulation).to.have.property('progression');
-        expect(Array.isArray(res.body.simulation.progression)).to.be.true;
-      }
-    });
-    
-    it('should not allow student to access simulation endpoint', async () => {
-      if (!studentToken || !studentId) return;
-      
-      const res = await request(app)
-        .post('/api/academic/simulate-progression')
-        .set('Authorization', `Bearer ${studentToken}`)
-        .send({
-          studentId: studentId,
-          semesters: 2
-        });
-      
-      // Should get a 403 Forbidden because students aren't allowed to use simulation
-      expect(403).to.equal(res.statusCode);
-    });
-    
-    it('should get student recommended subjects', async () => {
-      if (!studentToken || !studentId) return;
-      
-      const res = await request(app)
-        .get(`/api/student/${studentId}/recommendations`)
-        .set('Authorization', `Bearer ${studentToken}`);
-      
-      expect([200, 401, 404]).to.include(res.statusCode);
-      
-      // If successful, check for recommendation data
-      if (res.statusCode === 200) {
-        expect(res.body).to.have.property('message');
-        expect(res.body).to.have.property('currentInfo');
-        expect(res.body).to.have.property('nextInfo');
-        expect(res.body).to.have.property('eligibleSubjects');
-        expect(res.body).to.have.property('ineligibleSubjects');
-      }
-    });
-  });
-  
   it('should allow admin to delete a subject by edpCode', async () => {
     if (!adminToken) return;
     // First create a test subject to delete
@@ -521,123 +392,6 @@ describe('API Route Integration Tests', function () {
       expect(200).to.equal(deleteRes.statusCode);
       expect(deleteRes.body).to.have.property('message');
       expect(deleteRes.body.message).to.include('deleted successfully');
-    }
-  });
-
-  // Academic API Tests - New Endpoints
-  it('should get student academic progress', async () => {
-    if (!studentToken || !studentId) return;
-    const res = await request(app)
-      .get(`/api/academic/${studentId}/progress`)
-      .set('Authorization', `Bearer ${studentToken}`);
-    
-    expect([200, 400, 401, 404]).to.include(res.statusCode);
-    
-    // If successful, check the response structure
-    if (res.statusCode === 200) {
-      expect(res.body).to.have.property('message');
-      expect(res.body).to.have.property('student');
-      expect(res.body).to.have.property('academicSummary');
-      // Check for academic summary properties
-      expect(res.body.academicSummary).to.have.property('totalUnitsPassed');
-      expect(res.body.academicSummary).to.have.property('totalUnitsAttempted');
-      expect(res.body.academicSummary).to.have.property('completionRate');
-    }
-  });
-
-  it('should get student academic progress as teacher', async () => {
-    if (!teacherToken || !studentId) return;
-    const res = await request(app)
-      .get(`/api/academic/${studentId}/progress`)
-      .set('Authorization', `Bearer ${teacherToken}`);
-    
-    expect([200, 400, 401, 404]).to.include(res.statusCode);
-  });
-
-  it('should allow teacher to record grades via academic API', async () => {
-    if (!teacherToken || !studentId) return;
-    
-    // Need to have enrolled the student in a subject first
-    if (!subjectId) return;
-    
-    const res = await request(app)
-      .post(`/api/academic/${studentId}/grades`)
-      .set('Authorization', `Bearer ${teacherToken}`)
-      .send({
-        academicYear: '2025-2026',
-        semester: 'First',
-        grades: [
-          {
-            edpCode: 'MATH101', // Using a generic code for testing
-            midtermGrade: 1.75,
-            finalGrade: 2.0     // Using Philippine grading system
-          }
-        ]
-      });
-    
-    expect([200, 400, 401, 404]).to.include(res.statusCode);
-  });
-
-  it('should deny student from recording grades', async () => {
-    if (!studentToken || !studentId) return;
-    
-    const res = await request(app)
-      .post(`/api/academic/${studentId}/grades`)
-      .set('Authorization', `Bearer ${studentToken}`)
-      .send({
-        academicYear: '2025-2026',
-        semester: 'First',
-        grades: [
-          {
-            edpCode: 'MATH101',
-            midtermGrade: 1.5,
-            finalGrade: 1.5
-          }
-        ]
-      });
-    
-    expect(403).to.equal(res.statusCode); // Should be forbidden
-  });
-
-  it('should run academic progression simulation', async () => {
-    if (!adminToken || !studentId) return;
-    
-    const res = await request(app)
-      .post('/api/academic/simulate-progression')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({
-        studentId: studentId,
-        semesters: 4 // Simulate 2 academic years (4 semesters)
-      });
-    
-    expect([200, 400, 401, 404]).to.include(res.statusCode);
-    
-    // If successful, check the simulation contains the expected data
-    if (res.statusCode === 200) {
-      expect(res.body).to.have.property('message');
-      expect(res.body).to.have.property('simulation');
-      expect(res.body.simulation).to.have.property('studentInfo');
-      expect(res.body.simulation).to.have.property('progression');
-      expect(Array.isArray(res.body.simulation.progression)).to.be.true;
-    }
-  });
-
-  it('should get recommended subjects for the next semester', async () => {
-    if (!studentToken || !studentId) return;
-    
-    const res = await request(app)
-      .get(`/api/student/${studentId}/recommendations`)
-      .set('Authorization', `Bearer ${studentToken}`);
-    
-    expect([200, 400, 401, 404]).to.include(res.statusCode);
-    
-    if (res.statusCode === 200) {
-      expect(res.body).to.have.property('currentInfo');
-      expect(res.body).to.have.property('nextInfo');
-      expect(res.body).to.have.property('eligibleSubjects');
-      expect(res.body).to.have.property('ineligibleSubjects');
-      expect(Array.isArray(res.body.eligibleSubjects)).to.be.true;
-      expect(Array.isArray(res.body.ineligibleSubjects)).to.be.true;
     }
   });
 

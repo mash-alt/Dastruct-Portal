@@ -168,16 +168,16 @@ async function runBSITExample() {
       semester: 'Second',
       subjects: generateGrades(firstYearSecondSemSubjects)
     };
-      // Set the student's academic history with both semesters
+    
+    // Set the student's academic history with both semesters
     student.academicHistory = [firstSemAcademicEntry, secondSemAcademicEntry];
     
-    // Keep the student's year level at 1 since they've only completed first year subjects
-    // This ensures the recommendations will be for second year subjects
-    student.yearLevel = 1;
+    // Update student's year level to 2 (ready for second year recommendations)
+    student.yearLevel = 2;
     
     await student.save();
     console.log("Academic history updated with first and second semester subjects");
-    console.log("Student year level is set to 1 (completing first year)");
+    console.log("Student year level updated to 2 for second year recommendations");
       // Log information about passed and failed subjects
     const firstSemPassedSubjects = student.academicHistory[0].subjects.filter(s => s.remarks === 'Passed');
     const firstSemFailedSubjects = student.academicHistory[0].subjects.filter(s => s.remarks === 'Failed');
