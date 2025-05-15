@@ -5,9 +5,7 @@ import Teacher from '../schema/teacher.js';
 // Add or update midterm and final grades for a student in a subject
 export const addGrade = async (req, res) => {
   try {
-    const { studentName, subjectName, midtermGrade, finalGrade } = req.body;
-
-    // Validate input
+    const { studentName, subjectName, midtermGrade, finalGrade } = req.body;    // Validate input
     if (!studentName || !subjectName || (midtermGrade === undefined && finalGrade === undefined)) {
       return res.status(400).json({ error: 'studentName, subjectName, and at least one grade (midterm or final) are required.' });
     }
@@ -18,6 +16,15 @@ export const addGrade = async (req, res) => {
 
     if ((midterm !== undefined && isNaN(midterm)) || (final !== undefined && isNaN(final))) {
       return res.status(400).json({ error: 'midtermGrade and finalGrade must be valid numbers.' });
+    }
+    
+    // Validate grade range (Philippine standard grading system: 1.0-5.0)
+    if (midterm !== undefined && (midterm < 1.0 || midterm > 5.0)) {
+      return res.status(400).json({ error: 'midtermGrade must be between 1.0 and 5.0 (Philippine standard grading).' });
+    }
+    
+    if (final !== undefined && (final < 1.0 || final > 5.0)) {
+      return res.status(400).json({ error: 'finalGrade must be between 1.0 and 5.0 (Philippine standard grading).' });
     }
 
     // Find the student by name
@@ -122,14 +129,12 @@ export const getEnrolledStudentsByTeacher = async (req, res) => {
               // Include grade information if available
               grades: subject.grades && subject.grades.get(student._id.toString())
             });
-          } else {
-            // Add new student to the map with their first subject
+          } else {            // Add new student to the map with their first subject
             studentMap.set(student._id.toString(), {
-              _id: student._id,
-              name: student.name,
-              email: student.email,
+              studentId: student.studentId, // Student custom ID (like ucb-12345678)
+              studentName: student.name,
               course: student.course,
-              department: student.department,
+              section: student.section,
               subjects: [{
                 _id: subject._id,
                 subjectName: subject.subjectName,
@@ -214,16 +219,14 @@ export const getStudentsBySubject = async (req, res) => {
     const enrolledStudents = await Student.find({
       _id: { $in: studentIds }
     }).select('-password'); // Exclude password from the results
-    
-    // Format student information with grades
+      // Format student information with grades - limited to only required fields
     const studentsWithGrades = enrolledStudents.map(student => {
       const studentId = student._id.toString();
       return {
-        _id: student._id,
-        name: student.name,
-        email: student.email,
+        studentId: student.studentId, // Student custom ID (like ucb-12345678)
+        studentName: student.name,
         course: student.course,
-        department: student.department,
+        section: student.section,
         // Include grade information if available
         grades: subject.grades && subject.grades.get(studentId) ? subject.grades.get(studentId) : null
       };
